@@ -18,6 +18,7 @@ namespace Inventory.WebApi.Controllers
         }
 
         [Route("weapons")]
+        [HttpGet]
         public IActionResult ListWeapons()
         {
             try
@@ -29,6 +30,20 @@ namespace Inventory.WebApi.Controllers
             {
                 return this.StatusCode(500, ex);
             }
+        }
+
+        [Route("weapons/{id}")]
+        [HttpGet]
+        public IActionResult ListWeapon(string id)
+        {
+            return this.StatusCode(200, $"Weapon id is {id}");
+        }
+
+        [Route("weapons")]
+        [HttpPost]
+        public IActionResult NewWeapon()
+        {
+            return this.StatusCode(200, "New weapon is called");
         }
     }
 }
