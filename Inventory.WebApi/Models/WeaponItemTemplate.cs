@@ -20,7 +20,7 @@ namespace Inventory.WebApi.Models
     {
         [Key]
         public int Id { get; set; }
-        public WeaponType Type { get; set; }
+        public WeaponType WeaponType { get; set; }
         public string Name { get; set; }
         public string Title { get; set; }
         public MaterialType MaterialType { get; set; }

@@ -14,6 +14,8 @@ namespace Inventory.WebApi
     {
         public static void Main(string[] args)
         {
+            var procId = System.Diagnostics.Process.GetCurrentProcess().Id;
+            System.Console.Title = $"{procId} - Inventory.WebApi";
             BuildWebHost(args).Run();
         }
 
