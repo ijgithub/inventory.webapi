@@ -99,5 +99,83 @@ namespace Inventory.WebApi.Controllers
             }
 
         }
+
+        [Route("armor")]
+        [HttpGet]
+        public IActionResult ListArmor()
+        {
+            try
+            {
+                var armorTemplates = this._dbContext.ArmorTemplates.ToList();
+                return Ok(armorTemplates);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(500, ex);
+            }
+        }
+
+        [Route("armor/{id}")]
+        [HttpGet]
+        public IActionResult ArmorDetails(int id)
+        {
+            try
+            {
+                var armorTemplate = this._dbContext.ArmorTemplates.FirstOrDefault(at => at.Id == id);
+                return Ok(armorTemplate);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(500, ex);
+            }
+        }
+
+        [Route("armor")]
+        [HttpPost]
+        public async Task<IActionResult> NewArmor([FromBody]ArmorItemTemplate armorItemTemplate)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                if (armorItemTemplate.Id > 0)
+                {
+                    var dbEntity = _dbContext.ArmorTemplates.FirstOrDefault(wt => wt.Id == armorItemTemplate.Id);
+
+                    dbEntity.Name = armorItemTemplate.Name;
+                    dbEntity.Title = armorItemTemplate.Title;
+                    dbEntity.ArmorType = armorItemTemplate.ArmorType;
+                    dbEntity.MaterialType = armorItemTemplate.MaterialType;
+                    dbEntity.Defense = armorItemTemplate.Defense;
+
+                    _dbContext.ArmorTemplates.Update(dbEntity);
+
+                }
+                else
+                {
+                    _dbContext.ArmorTemplates.Add(armorItemTemplate);
+                }
+
+
+                var changeCount = await _dbContext.SaveChangesAsync();
+
+                if (changeCount != 1)
+                {
+                    return StatusCode(500, new { message = "Database error. Number of records updated is greater than one." });
+                }
+
+                return StatusCode(200, new { message = "New weapon is called" });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+
+        }
+
     }
 }

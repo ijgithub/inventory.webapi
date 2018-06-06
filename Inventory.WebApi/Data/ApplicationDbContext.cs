@@ -16,5 +16,6 @@ namespace Inventory.WebApi.Data
 
         public DbSet<InventoryItem> Inventory { get; set; }
         public DbSet<WeaponItemTemplate> WeaponTemplates { get; set; }
+        public DbSet<ArmorItemTemplate> ArmorTemplates { get; set; }
     }
 }
