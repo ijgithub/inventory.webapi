@@ -5,32 +5,33 @@ using System.Collections.Generic;
 
 namespace Inventory.WebApi.Migrations
 {
-    public partial class ArmorItemTemplates : Migration
+    public partial class AddedItemTemplatetable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ArmorTemplates",
+                name: "ItemTemplates",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ArmorType = table.Column<int>(nullable: false),
-                    Defense = table.Column<int>(nullable: false),
+                    ItemType = table.Column<int>(nullable: false),
                     MaterialType = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    Title = table.Column<string>(nullable: true)
+                    TemplateType = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArmorTemplates", x => x.Id);
+                    table.PrimaryKey("PK_ItemTemplates", x => x.Id);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ArmorTemplates");
+                name: "ItemTemplates");
         }
     }
 }

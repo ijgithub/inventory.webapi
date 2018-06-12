@@ -21,26 +21,6 @@ namespace Inventory.WebApi.Migrations
                 .HasAnnotation("ProductVersion", "2.0.3-rtm-10026")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Inventory.WebApi.Models.ArmorItemTemplate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("ArmorType");
-
-                    b.Property<int>("Defense");
-
-                    b.Property<int>("MaterialType");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ArmorTemplates");
-                });
-
             modelBuilder.Entity("Inventory.WebApi.Models.InventoryItem", b =>
                 {
                     b.Property<int>("Id")
@@ -55,24 +35,26 @@ namespace Inventory.WebApi.Migrations
                     b.ToTable("Inventory");
                 });
 
-            modelBuilder.Entity("Inventory.WebApi.Models.WeaponItemTemplate", b =>
+            modelBuilder.Entity("Inventory.WebApi.Models.ItemTemplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Damage");
+                    b.Property<int>("ItemType");
 
                     b.Property<int>("MaterialType");
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("TemplateType");
+
                     b.Property<string>("Title");
 
-                    b.Property<int>("WeaponType");
+                    b.Property<string>("Value");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WeaponTemplates");
+                    b.ToTable("ItemTemplates");
                 });
 #pragma warning restore 612, 618
         }

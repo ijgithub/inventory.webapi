@@ -12,8 +12,8 @@ using System;
 namespace Inventory.WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180517204455_WeaponItemTemplates")]
-    partial class WeaponItemTemplates
+    [Migration("20180609135919_Added ItemTemplate table")]
+    partial class AddedItemTemplatetable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,24 +36,26 @@ namespace Inventory.WebApi.Migrations
                     b.ToTable("Inventory");
                 });
 
-            modelBuilder.Entity("Inventory.WebApi.Models.WeaponItemTemplate", b =>
+            modelBuilder.Entity("Inventory.WebApi.Models.ItemTemplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Damage");
+                    b.Property<int>("ItemType");
 
                     b.Property<int>("MaterialType");
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("TemplateType");
+
                     b.Property<string>("Title");
 
-                    b.Property<int>("Type");
+                    b.Property<string>("Value");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WeaponTemplates");
+                    b.ToTable("ItemTemplates");
                 });
 #pragma warning restore 612, 618
         }
