@@ -16,5 +16,6 @@ namespace Inventory.WebApi.Data
 
         public DbSet<InventoryItem> Inventory { get; set; }
         public DbSet<ItemTemplate> ItemTemplates { get; set; }
+        public DbSet<Recipe> Recipes { get; set; }
     }
 }
