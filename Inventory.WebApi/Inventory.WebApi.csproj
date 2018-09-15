@@ -8,6 +8,7 @@
     <Compile Remove="Migrations\20180517204455_WeaponItemTemplates.cs" />
     <Compile Remove="Migrations\20180602215709_Property name changed.cs" />
     <Compile Remove="Migrations\20180606212003_ArmorItemTemplates.cs" />
+    <Compile Remove="Migrations\20180616214604_Added_Recipes_Prototype.cs" />
   </ItemGroup>
 
   <ItemGroup>

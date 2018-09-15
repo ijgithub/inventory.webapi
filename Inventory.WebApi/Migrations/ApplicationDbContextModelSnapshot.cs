@@ -102,9 +102,9 @@ namespace Inventory.WebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Name");
+                    b.Property<string>("Name");
 
-                    b.Property<int>("Title");
+                    b.Property<string>("Title");
 
                     b.HasKey("Id");
 

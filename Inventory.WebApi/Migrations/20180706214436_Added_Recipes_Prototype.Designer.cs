@@ -12,7 +12,7 @@ using System;
 namespace Inventory.WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180616214604_Added_Recipes_Prototype")]
+    [Migration("20180706214436_Added_Recipes_Prototype")]
     partial class Added_Recipes_Prototype
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,9 +103,9 @@ namespace Inventory.WebApi.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Name");
+                    b.Property<string>("Name");
 
-                    b.Property<int>("Title");
+                    b.Property<string>("Title");
 
                     b.HasKey("Id");
 
