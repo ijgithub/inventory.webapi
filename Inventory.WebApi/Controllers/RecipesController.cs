@@ -84,96 +84,124 @@ namespace Inventory.WebApi.Controllers
             {
                 if (recipe.Id > 0)
                 {
-                    var dbEntity = _dbContext.Recipes.FirstOrDefault(wt => wt.Id == recipe.Id);
+                    var dbEntity = _dbContext.Recipes.
+                        Include("CraftingIngredients")
+                        .Include("CraftedItems")
+                        .FirstOrDefault(wt => wt.Id == recipe.Id);
+
+                    dbEntity.CraftingIngredients.ForEach(ing =>
+                    {
+                        ing.CraftingIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == ing.CraftingIngredientId);
+                    });
+
+                    dbEntity.CraftedItems.ForEach(ci =>
+                    {
+                        ci.CraftedItem = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == ci.CraftedItemId);
+                    });
 
                     dbEntity.Name = recipe.Name;
                     dbEntity.Title = recipe.Title;
 
-                    var addedInputs = recipe.CraftingIngredients.Except(dbEntity.CraftingIngredients);
-                    var updatedInputs = recipe.CraftingIngredients.Intersect(dbEntity.CraftingIngredients);
-                    var deletedInputs = dbEntity.CraftingIngredients.Except(recipe.CraftingIngredients);
+                    var dbEntityCraftingIngredientsIds = dbEntity.CraftingIngredients.Select(ci => ci.Id);
+                    var recipeCraftingIngredientsIds = recipe.CraftingIngredients.Select(ci => ci.Id);
+
+                    var addedInputsIds = recipeCraftingIngredientsIds.Except(dbEntityCraftingIngredientsIds);
+                    var updatedInputsIds = recipeCraftingIngredientsIds.Intersect(dbEntityCraftingIngredientsIds);
+                    var deletedInputsIds = dbEntityCraftingIngredientsIds.Except(recipeCraftingIngredientsIds);
 
                     // handle added ingredients 
-                    foreach(var input in addedInputs)
+                    foreach (var inputId in addedInputsIds)
                     {
-                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == input.CraftingIngredientId);
+                        var recipeInput = recipe.CraftingIngredients.FirstOrDefault(ci => ci.CraftingIngredientId == inputId);
+
+                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeInput.CraftingIngredientId);
                         if (dbIngredient == null)
                         {
                             return this.StatusCode((int)HttpStatusCode.UnprocessableEntity, recipe);
                         }
 
                         var craftingInput = new CraftingInput();
-                        craftingInput.Quantity = input.Quantity;
+                        craftingInput.Quantity = recipeInput.Quantity;
                         craftingInput.CraftingIngredient = dbIngredient;
-                        craftingInput.CraftingIngredientId = input.CraftingIngredientId;
+                        craftingInput.CraftingIngredientId = dbIngredient.Id;
 
                         dbEntity.CraftingIngredients.Add(craftingInput);
                     }
 
                     // handle updated ingredients
-                    foreach (var input in updatedInputs)
+                    foreach (var inputId in updatedInputsIds)
                     {
-                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == input.Id);
+                        var recipeInput = recipe.CraftingIngredients.FirstOrDefault(ci => ci.Id == inputId);
+                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == inputId);
 
-                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == input.CraftingIngredientId);
+                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeInput.CraftingIngredientId);
                         if (dbIngredient == null)
                         {
                             return this.StatusCode((int)HttpStatusCode.UnprocessableEntity, recipe);
                         }
 
-                        existingInput.Quantity = input.Quantity;
+                        existingInput.Quantity = recipeInput.Quantity;
                         existingInput.CraftingIngredient = dbIngredient;
-                        existingInput.CraftingIngredientId = input.CraftingIngredientId;
+                        existingInput.CraftingIngredientId = dbIngredient.Id;
                     }
 
                     // handle deleted inputs 
-                    foreach (var input in deletedInputs)
+                    foreach (var inputId in deletedInputsIds)
                     {
-                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == input.Id);
+                        var recipeInput = recipe.CraftingIngredients.FirstOrDefault(ci => ci.CraftingIngredientId == inputId);
+
+                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == recipeInput.Id);
                         dbEntity.CraftingIngredients.Remove(existingInput);
                     }
 
-                    var addedOutputs = recipe.CraftedItems.Except(dbEntity.CraftedItems);
-                    var updatedOutputs= recipe.CraftedItems.Intersect(dbEntity.CraftedItems);
-                    var deletedOutputs = dbEntity.CraftedItems.Except(recipe.CraftedItems);
+                    var dbEntityCraftedItemsIds = dbEntity.CraftedItems.Select(ci => ci.Id);
+                    var recipeCraftedItemsIds = recipe.CraftedItems.Select(ci => ci.Id);
+
+                    var addedOutputsIds = recipeCraftedItemsIds.Except(dbEntityCraftedItemsIds);
+                    var updatedOutputsIds = recipeCraftedItemsIds.Intersect(dbEntityCraftedItemsIds);
+                    var deletedOutputsIds = dbEntityCraftedItemsIds.Except(recipeCraftedItemsIds);
 
                     // handle added outputs
-                    foreach (var output in addedOutputs)
+                    foreach (var outputId in addedOutputsIds)
                     {
-                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == output.CraftedItemId);
+                        var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
+
+                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeOutput.CraftedItemId);
                         if (dbIngredient == null)
                         {
                             return this.StatusCode((int)HttpStatusCode.UnprocessableEntity, recipe);
                         }
 
                         var craftedOutput = new CraftingOutput();
-                        craftedOutput.Quantity = output.Quantity;
+                        craftedOutput.Quantity = recipeOutput.Quantity;
                         craftedOutput.CraftedItem = dbIngredient;
-                        craftedOutput.CraftedItemId = output.CraftedItemId;
+                        craftedOutput.CraftedItemId = dbIngredient.Id;
 
                         dbEntity.CraftedItems.Add(craftedOutput);
                     }
 
                     // handle updated ingredients
-                    foreach (var output in updatedOutputs)
+                    foreach (var outputId in updatedOutputsIds)
                     {
-                        var existingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == output.Id);
+                        var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
+                        var existingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == recipeOutput.Id);
 
-                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == output.CraftedItemId);
+                        var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeOutput.CraftedItemId);
                         if (dbIngredient == null)
                         {
                             return this.StatusCode((int)HttpStatusCode.UnprocessableEntity, recipe);
                         }
 
-                        existingOutput.Quantity = output.Quantity;
+                        existingOutput.Quantity = recipeOutput.Quantity;
                         existingOutput.CraftedItem = dbIngredient;
-                        existingOutput.CraftedItemId = output.CraftedItemId;
+                        existingOutput.CraftedItemId = dbIngredient.Id;
                     }
 
                     // handle deleted inputs 
-                    foreach (var output in deletedOutputs)
+                    foreach (var outputId in deletedOutputsIds)
                     {
-                        var exstingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == output.Id);
+                        var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
+                        var exstingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == recipeOutput.Id);
                         dbEntity.CraftedItems.Remove(exstingOutput);
                     }
 
@@ -251,7 +279,7 @@ namespace Inventory.WebApi.Controllers
                     .Include("CraftingIngredients")
                     .Include("CraftedItems")
                     .FirstOrDefault(it => it.Id == id);
-                
+
                 if (entity.CraftingIngredients != null)
                 {
                     entity.CraftingIngredients.Clear();
