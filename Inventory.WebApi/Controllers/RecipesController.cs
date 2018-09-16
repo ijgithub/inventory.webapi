@@ -105,14 +105,13 @@ namespace Inventory.WebApi.Controllers
                     var dbEntityCraftingIngredientsIds = dbEntity.CraftingIngredients.Select(ci => ci.Id);
                     var recipeCraftingIngredientsIds = recipe.CraftingIngredients.Select(ci => ci.Id);
 
-                    var addedInputsIds = recipeCraftingIngredientsIds.Except(dbEntityCraftingIngredientsIds);
-                    var updatedInputsIds = recipeCraftingIngredientsIds.Intersect(dbEntityCraftingIngredientsIds);
-                    var deletedInputsIds = dbEntityCraftingIngredientsIds.Except(recipeCraftingIngredientsIds);
+                    var updatedInputsIds = recipeCraftingIngredientsIds.Intersect(dbEntityCraftingIngredientsIds).ToArray();
+                    var deletedInputsIds = dbEntityCraftingIngredientsIds.Except(recipeCraftingIngredientsIds).ToArray();
 
                     // handle added ingredients 
-                    foreach (var inputId in addedInputsIds)
+                    foreach (var recipeInput in recipe.CraftingIngredients)
                     {
-                        var recipeInput = recipe.CraftingIngredients.FirstOrDefault(ci => ci.CraftingIngredientId == inputId);
+                        if (recipeInput.Id != 0) continue;
 
                         var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeInput.CraftingIngredientId);
                         if (dbIngredient == null)
@@ -148,23 +147,21 @@ namespace Inventory.WebApi.Controllers
                     // handle deleted inputs 
                     foreach (var inputId in deletedInputsIds)
                     {
-                        var recipeInput = recipe.CraftingIngredients.FirstOrDefault(ci => ci.CraftingIngredientId == inputId);
-
-                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == recipeInput.Id);
+                        var existingInput = dbEntity.CraftingIngredients.FirstOrDefault(ci => ci.Id == inputId);
+                        existingInput.CraftingIngredient = null;
                         dbEntity.CraftingIngredients.Remove(existingInput);
                     }
 
                     var dbEntityCraftedItemsIds = dbEntity.CraftedItems.Select(ci => ci.Id);
                     var recipeCraftedItemsIds = recipe.CraftedItems.Select(ci => ci.Id);
 
-                    var addedOutputsIds = recipeCraftedItemsIds.Except(dbEntityCraftedItemsIds);
-                    var updatedOutputsIds = recipeCraftedItemsIds.Intersect(dbEntityCraftedItemsIds);
-                    var deletedOutputsIds = dbEntityCraftedItemsIds.Except(recipeCraftedItemsIds);
+                    var updatedOutputsIds = recipeCraftedItemsIds.Intersect(dbEntityCraftedItemsIds).ToArray();
+                    var deletedOutputsIds = dbEntityCraftedItemsIds.Except(recipeCraftedItemsIds).ToArray();
 
                     // handle added outputs
-                    foreach (var outputId in addedOutputsIds)
+                    foreach (var recipeOutput in recipe.CraftedItems)
                     {
-                        var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
+                        if (recipeOutput.Id != 0) continue;
 
                         var dbIngredient = _dbContext.ItemTemplates.FirstOrDefault(it => it.Id == recipeOutput.CraftedItemId);
                         if (dbIngredient == null)
@@ -180,7 +177,7 @@ namespace Inventory.WebApi.Controllers
                         dbEntity.CraftedItems.Add(craftedOutput);
                     }
 
-                    // handle updated ingredients
+                    // handle updated outputs
                     foreach (var outputId in updatedOutputsIds)
                     {
                         var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
@@ -197,12 +194,12 @@ namespace Inventory.WebApi.Controllers
                         existingOutput.CraftedItemId = dbIngredient.Id;
                     }
 
-                    // handle deleted inputs 
+                    // handle deleted outputs
                     foreach (var outputId in deletedOutputsIds)
                     {
-                        var recipeOutput = recipe.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
-                        var exstingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == recipeOutput.Id);
-                        dbEntity.CraftedItems.Remove(exstingOutput);
+                        var existingOutput = dbEntity.CraftedItems.FirstOrDefault(ci => ci.Id == outputId);
+                        existingOutput.CraftedItem = null;
+                        dbEntity.CraftedItems.Remove(existingOutput);
                     }
 
                     _dbContext.Recipes.Update(dbEntity);
